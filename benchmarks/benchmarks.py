@@ -33,6 +33,8 @@ class EventListSuite:
     param_names = ["n_events"]
 
     def setup(self, n):
+        import stingray.events  # noqa: F401  (keep import time out of the timing)
+
         self.gti = np.array([[0, 1000]])
         self.times = uniform_events(n, 1000)
 
@@ -70,6 +72,8 @@ class LightcurveSuite:
     param_names = ["n_bins"]
 
     def setup(self, n):
+        import stingray.lightcurve  # noqa: F401  (keep import time out of the timing)
+
         self.dt = 1.0e-4
         self.times = (np.arange(n) + 0.5) * self.dt
         self.gti = np.array([[0, n * self.dt]])
@@ -106,7 +110,12 @@ class AveragedSpectrumSuite:
     timeout = 900
 
     def setup(self, case):
+        from stingray.crossspectrum import AveragedCrossspectrum
         from stingray.events import EventList
+        from stingray.powerspectrum import AveragedPowerspectrum
+
+        self.AveragedCrossspectrum = AveragedCrossspectrum
+        self.AveragedPowerspectrum = AveragedPowerspectrum
 
         cfg = SPECTRUM_CASES[case]
         self.dt = cfg["dt"]
@@ -125,14 +134,10 @@ class AveragedSpectrumSuite:
         self.lc = self.events.to_lc(dt=self.dt)
 
     def time_powerspectrum_from_events(self, case):
-        from stingray.powerspectrum import AveragedPowerspectrum
-
-        AveragedPowerspectrum(self.events, dt=self.dt, segment_size=self.segment_size)
+        self.AveragedPowerspectrum(self.events, dt=self.dt, segment_size=self.segment_size)
 
     def time_crossspectrum_from_events(self, case):
-        from stingray.crossspectrum import AveragedCrossspectrum
-
-        AveragedCrossspectrum(
+        self.AveragedCrossspectrum(
             self.events0,
             self.events1,
             dt=self.dt,
@@ -141,11 +146,7 @@ class AveragedSpectrumSuite:
         )
 
     def time_powerspectrum_from_lc(self, case):
-        from stingray.powerspectrum import AveragedPowerspectrum
-
-        AveragedPowerspectrum(self.lc, segment_size=self.segment_size)
+        self.AveragedPowerspectrum(self.lc, segment_size=self.segment_size)
 
     def time_crossspectrum_from_lc(self, case):
-        from stingray.crossspectrum import AveragedCrossspectrum
-
-        AveragedCrossspectrum(self.lc0, self.lc1, segment_size=self.segment_size)
+        self.AveragedCrossspectrum(self.lc0, self.lc1, segment_size=self.segment_size)
