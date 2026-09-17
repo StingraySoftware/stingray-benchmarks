@@ -10,6 +10,7 @@ See README.md and docs/technical_details.md.
 
 import argparse
 import datetime
+import fcntl
 import os
 import re
 import subprocess
@@ -55,6 +56,20 @@ def history_commits(repo, start, end):
     """First-parent commits from ``start`` to ``end`` (both included), oldest first."""
     commits = git(repo, "rev-list", "--first-parent", "--reverse", f"{start}..{end}")
     return git(repo, "rev-parse", f"{start}^{{commit}}") + commits
+
+
+def acquire_lock(path, blocking=True):
+    """Take an exclusive lock on ``path``; return the open file, or None if busy.
+
+    The lock is released when the returned file is closed or the process ends.
+    """
+    fobj = open(path, "w")
+    try:
+        fcntl.flock(fobj, fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB))
+    except BlockingIOError:
+        fobj.close()
+        return None
+    return fobj
 
 
 def environment_names():
@@ -135,6 +150,16 @@ def main(argv=None):
     for var in ["NUMBA_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"]:
         os.environ.setdefault(var, "1")
 
+    LOG_DIR.mkdir(exist_ok=True)
+    lock = None
+    if not args.dry_run:
+        # Two runs at once would share environments and results and disturb
+        # each other's timings: wait for any other run to finish.
+        lock = acquire_lock(LOG_DIR / "run_history.lock", blocking=False)
+        if lock is None:
+            print("Another run_history.py is running; waiting for it to finish.", flush=True)
+            lock = acquire_lock(LOG_DIR / "run_history.lock", blocking=True)
+
     update_mirror()
     envs = environment_names()
     extra = ["--skip-existing-successful", "--show-stderr"]
@@ -145,7 +170,6 @@ def main(argv=None):
     if args.cpu_affinity:
         extra += ["--cpu-affinity", args.cpu_affinity]
 
-    LOG_DIR.mkdir(exist_ok=True)
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     status = 0
     with open(LOG_DIR / f"run_history-{stamp}.log", "w") as log:

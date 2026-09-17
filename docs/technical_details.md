@@ -124,6 +124,10 @@ Environments take 0.8–1.8 GB each; a quick run takes 1–2 min per commit.
   benchmarked on this machine.
 - Every call uses `--skip-existing-successful`, so reruns only fill gaps.
   A failing commit makes the exit code non-zero but does not stop the run.
+- A lock (`logs/run_history.lock`) makes a second `run_history.py` wait for
+  the first to finish, e.g. the weekly timer during a long manual backfill.
+  Two runs at once would share environments and results and disturb each
+  other's timings. `--dry-run` does not take the lock.
 - `NUMBA_NUM_THREADS`, `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS` and
   `MKL_NUM_THREADS` default to 1 to reduce timing noise.
 

@@ -25,6 +25,7 @@ micromamba run -n asv asv machine --yes
 
 `run_history.py` picks the right environment for each commit, skips commits
 that already have results, keeps going if a commit fails, and logs to `logs/`.
+If another run is in progress, it waits for it to finish.
 It sets `CONDA_EXE` to `tools/conda-shim`, so asv builds environments with
 micromamba.
 

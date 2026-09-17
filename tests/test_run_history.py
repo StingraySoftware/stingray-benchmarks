@@ -54,3 +54,14 @@ def test_publish_commands(flags, expected):
     args = run_history.parse_args(flags)
     assert run_history.publish_commands(args) == expected
 
+
+def test_second_run_cannot_take_the_lock(tmp_path):
+    """While one run holds the lock, a non-blocking attempt by another run fails."""
+    lock_path = tmp_path / "run_history.lock"
+    first = run_history.acquire_lock(lock_path, blocking=False)
+    assert first is not None
+    assert run_history.acquire_lock(lock_path, blocking=False) is None
+    first.close()
+    second = run_history.acquire_lock(lock_path, blocking=False)
+    assert second is not None
+    second.close()
