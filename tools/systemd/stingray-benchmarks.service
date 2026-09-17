@@ -1,5 +1,5 @@
 [Unit]
-Description=Benchmark new Stingray commits with asv
+Description=Benchmark new Stingray commits with asv and update gh-pages
 Wants=network-online.target
 After=network-online.target
 
@@ -7,12 +7,23 @@ After=network-online.target
 Type=oneshot
 # Adjust if this repository lives elsewhere.
 WorkingDirectory=%h/devel/stingray-benchmarks
-ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish
+
+# Stack the new website on the published one. The leading "-" lets the
+# benchmarks run even if GitHub is unreachable.
+ExecStartPre=-/bin/sh -c 'git fetch origin && git branch -f gh-pages origin/gh-pages'
+
+# Benchmark commits newer than any benchmarked, then commit the website to
+# the local gh-pages branch (never pushes).
+ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --gh-pages
 # Optional: pin benchmarks to one core that is otherwise idle.
-# ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish --cpu-affinity 3
-# Optional: record, share and publish the results (not enabled by default).
-# To publish, replace --publish with --gh-pages in ExecStart above.
-# ExecStartPost=/bin/sh -c 'git add results && git commit -q -m "Benchmark results $(date +%%F)" || true'
-# ExecStartPost=/bin/sh -c 'git push origin main'
-# ExecStartPost=/bin/sh -c 'git fetch origin && git push origin gh-pages'
+# ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --gh-pages --cpu-affinity 3
+
+# ExecStopPost runs even when some commit failed to benchmark (non-zero exit).
+# Commit only results/, never anything else you may have staged.
+ExecStopPost=/bin/sh -c 'git add results && git commit -q -m "Benchmark results $(date +%%F)" -- results || true'
+# Pushing is off until you have checked one run. Note that pushing main also
+# pushes any other local commits on main. Pushing needs stored credentials.
+# ExecStopPost=/bin/sh -c 'git push origin main'
+# ExecStopPost=/bin/sh -c 'git push origin gh-pages'
+
 TimeoutStartSec=infinity

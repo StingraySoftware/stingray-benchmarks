@@ -98,10 +98,22 @@ git push -f origin gh-pages
 
 ## Weekly runs on a local machine
 
-`tools/systemd/` has a systemd user service and timer that run
-`run_history.py --new --publish` every Sunday at 02:00. Edit
-`WorkingDirectory` if needed, and uncomment the `ExecStartPost` lines to
-commit and push the results and publish the website automatically.
+`tools/systemd/` has a systemd user service and timer that run every Sunday
+at 02:00. Each run:
+
+1. syncs the local `gh-pages` branch with GitHub's copy;
+2. benchmarks commits on `main` newer than any benchmarked
+   (`run_history.py --new --gh-pages`) and commits the website to `gh-pages`;
+3. commits `results/` on `main` (only `results/`, nothing else you staged),
+   even if some commit failed to benchmark.
+
+Pushing is disabled until you have checked a run: then uncomment the two
+`git push` lines. Pushing `main` also pushes any other local commits on
+`main`, and needs stored GitHub credentials (the job runs unattended).
+The weekly run is meant to add to a complete history: run
+`run_history.py --history` once before enabling it.
+
+After editing the unit files, copy them again and reload:
 
 ```bash
 mkdir -p ~/.config/systemd/user && cp tools/systemd/stingray-benchmarks.* ~/.config/systemd/user/

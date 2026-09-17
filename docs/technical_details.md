@@ -113,3 +113,8 @@ on v0.3 (era A) and main (era C).
   `--rewrite` both call `asv gh-pages --no-push`.
 - On 2026-09-17 the 2024 site (Python 3.11 runs whose results are not in
   this repository) was replaced with `--rewrite` and a force-push.
+- The weekly systemd service syncs `gh-pages` from `origin` *before* running
+  (`ExecStartPre`), so `--gh-pages` stacks on the published site. It commits
+  results with `git commit -- results`, which ignores anything else staged,
+  and does so in `ExecStopPost`, which runs even when `run_history.py` exits
+  non-zero because one commit failed.
