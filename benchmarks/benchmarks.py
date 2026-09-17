@@ -1,7 +1,7 @@
-"""Stingray benchmarks, written to run unchanged from v0.3 to main.
+"""Stingray benchmarks, written to run unchanged from v0.1 to main.
 
-All data come from a fixed seed with numpy's legacy RandomState, whose
-stream is identical in every numpy version, so all eras see the same data.
+Input data are created once and loaded from checksum-verified .npy files
+(see ``_data.py``), so every era benchmarks exactly the same arrays.
 Stingray objects are built in ``setup``, so an API problem only affects the
 benchmarks that depend on it. Set STINGRAY_BENCH_SMALL=1 to shrink all data
 (used by the test suite).
@@ -11,15 +11,9 @@ import os
 
 import numpy as np
 
-from . import _compat
+from . import _compat, _data
 
 SMALL = bool(os.environ.get("STINGRAY_BENCH_SMALL"))
-SEED = 20240419
-
-
-def uniform_events(n, tmax, seed=SEED):
-    """Sorted, uniformly distributed event times in [0, tmax)."""
-    return np.sort(np.random.RandomState(seed).uniform(0, tmax, n))
 
 
 class EventListSuite:
@@ -36,7 +30,7 @@ class EventListSuite:
         import stingray.events  # noqa: F401  (keep import time out of the timing)
 
         self.gti = np.array([[0, 1000]])
-        self.times = uniform_events(n, 1000)
+        self.times = _data.uniform_events(n, 1000)
 
     def time_create_with_checks(self, n):
         _compat.make_eventlist(self.times, gti=self.gti, skip_checks=False)
@@ -56,7 +50,7 @@ class LightcurveFromEventsSuite:
 
         self.Lightcurve = Lightcurve
         self.gti = np.array([[0, 1000]])
-        self.times = uniform_events(n, 1000)
+        self.times = _data.uniform_events(n, 1000)
 
     def time_make_lightcurve(self, n):
         self.Lightcurve.make_lightcurve(self.times, dt=1, gti=self.gti)
@@ -77,7 +71,7 @@ class LightcurveSuite:
         self.dt = 1.0e-4
         self.times = (np.arange(n) + 0.5) * self.dt
         self.gti = np.array([[0, n * self.dt]])
-        self.counts = np.random.RandomState(SEED).poisson(100, size=n)
+        self.counts = _data.poisson_counts(n)
 
     def time_create_with_checks(self, n):
         _compat.make_lightcurve(
@@ -122,9 +116,9 @@ class AveragedSpectrumSuite:
         self.segment_size = cfg["segment_size"]
         self.gti = np.array([[0, cfg["tmax"]]])
 
-        times0 = uniform_events(cfg["n_events"], cfg["tmax"], seed=SEED)
-        times1 = uniform_events(cfg["n_events"], cfg["tmax"], seed=SEED + 1)
-        times = np.sort(np.concatenate([times0, times1]))
+        times0 = _data.uniform_events(cfg["n_events"], cfg["tmax"], seed=_data.SEED)
+        times1 = _data.uniform_events(cfg["n_events"], cfg["tmax"], seed=_data.SEED + 1)
+        times = _data.merged_events(cfg["n_events"], cfg["tmax"])
 
         self.events0 = EventList(times0, gti=self.gti)
         self.events1 = EventList(times1, gti=self.gti)
@@ -134,10 +128,13 @@ class AveragedSpectrumSuite:
         self.lc = self.events.to_lc(dt=self.dt)
 
     def time_powerspectrum_from_events(self, case):
-        self.AveragedPowerspectrum(self.events, dt=self.dt, segment_size=self.segment_size)
+        _compat.averaged_spectrum_from_events(
+            self.AveragedPowerspectrum, self.events, dt=self.dt, segment_size=self.segment_size
+        )
 
     def time_crossspectrum_from_events(self, case):
-        self.AveragedCrossspectrum(
+        _compat.averaged_spectrum_from_events(
+            self.AveragedCrossspectrum,
             self.events0,
             self.events1,
             dt=self.dt,

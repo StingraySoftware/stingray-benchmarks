@@ -1,6 +1,7 @@
 import inspect
 import itertools
 import os
+import tempfile
 import warnings
 
 import pytest
@@ -8,8 +9,10 @@ import pytest
 # A real submodule: the asv mirror in ./stingray would satisfy a bare "stingray".
 pytest.importorskip("stingray.lightcurve")
 
-# Must be set before importing the benchmarks: it shrinks every data size.
+# Must be set before importing the benchmarks: it shrinks every data size,
+# and keeps the small test datasets out of the real data directory.
 os.environ["STINGRAY_BENCH_SMALL"] = "1"
+os.environ.setdefault("STINGRAY_BENCH_DATA", tempfile.mkdtemp(prefix="stingray-bench-"))
 
 import benchmarks.benchmarks as bm  # noqa: E402
 from benchmarks import _compat  # noqa: E402
@@ -47,7 +50,7 @@ def test_compat_passes_only_supported_keywords():
     """make_eventlist must not trigger Stingray's 'Unrecognized keywords' warning on old versions."""
     import numpy as np
 
-    times = np.sort(np.random.default_rng(0).uniform(0, 10, 100))
+    times = np.sort(np.random.RandomState(0).uniform(0, 10, 100))
     with warnings.catch_warnings():
         warnings.filterwarnings("error", message=".*Unrecognized keywords.*")
         _compat.make_eventlist(times, gti=[[0, 10]], skip_checks=True)

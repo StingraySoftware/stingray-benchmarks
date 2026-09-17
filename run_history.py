@@ -23,7 +23,8 @@ LOG_DIR = HERE / "logs"
 
 # name, Python version of its asv environment, first and last commit
 ERAS = [
-    ("A", "3.8", "v0.3", "v1.0"),
+    ("0", "3.7", "v0.1", "v0.2"),
+    ("A", "3.8", "v0.2", "v1.0"),
     ("B", "3.10", "v1.0", "v2.0.0"),
     ("C", "3.12", "v2.0.0", "main"),
 ]
@@ -97,7 +98,7 @@ def asv_run_list(commits, env, extra, log):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--eras", default="A,B,C", help="Comma-separated eras (default: all)")
+    parser.add_argument("--eras", default="0,A,B,C", help="Comma-separated eras (default: all)")
     parser.add_argument("--releases", action="store_true", help="Benchmark release tags")
     parser.add_argument("--history", action="store_true", help="Benchmark first-parent history")
     parser.add_argument("--steps", type=int, help="With --history: at most this many commits per era")

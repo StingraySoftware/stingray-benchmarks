@@ -1,6 +1,6 @@
 {
     "benchmarks.AveragedSpectrumSuite.time_crossspectrum_from_events": {
-        "code": "class AveragedSpectrumSuite:\n    def time_crossspectrum_from_events(self, case):\n        self.AveragedCrossspectrum(\n            self.events0,\n            self.events1,\n            dt=self.dt,\n            gti=self.gti,\n            segment_size=self.segment_size,\n        )\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED)\n        times1 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED + 1)\n        times = np.sort(np.concatenate([times0, times1]))\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
+        "code": "class AveragedSpectrumSuite:\n    def time_crossspectrum_from_events(self, case):\n        _compat.averaged_spectrum_from_events(\n            self.AveragedCrossspectrum,\n            self.events0,\n            self.events1,\n            dt=self.dt,\n            gti=self.gti,\n            segment_size=self.segment_size,\n        )\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED)\n        times1 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED + 1)\n        times = _data.merged_events(cfg[\"n_events\"], cfg[\"tmax\"])\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
         "min_run_count": 2,
         "name": "benchmarks.AveragedSpectrumSuite.time_crossspectrum_from_events",
         "number": 0,
@@ -19,11 +19,11 @@
         "timeout": 900,
         "type": "time",
         "unit": "seconds",
-        "version": "89b3f34838ba55923c3d08023fc89dbd8c51737048bb26ab0f0a119f74754715",
+        "version": "f1e0853b38629c78fcb6f37360585d16384e9d313da7da26f726d8fafe68e01e",
         "warmup_time": -1
     },
     "benchmarks.AveragedSpectrumSuite.time_crossspectrum_from_lc": {
-        "code": "class AveragedSpectrumSuite:\n    def time_crossspectrum_from_lc(self, case):\n        self.AveragedCrossspectrum(self.lc0, self.lc1, segment_size=self.segment_size)\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED)\n        times1 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED + 1)\n        times = np.sort(np.concatenate([times0, times1]))\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
+        "code": "class AveragedSpectrumSuite:\n    def time_crossspectrum_from_lc(self, case):\n        self.AveragedCrossspectrum(self.lc0, self.lc1, segment_size=self.segment_size)\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED)\n        times1 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED + 1)\n        times = _data.merged_events(cfg[\"n_events\"], cfg[\"tmax\"])\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
         "min_run_count": 2,
         "name": "benchmarks.AveragedSpectrumSuite.time_crossspectrum_from_lc",
         "number": 0,
@@ -42,11 +42,11 @@
         "timeout": 900,
         "type": "time",
         "unit": "seconds",
-        "version": "436548dedfeba742538b1917fc875a3c38bc6a31786120852e9714527a5fd1d8",
+        "version": "bb87756c2e08c49592fd19cc9c157a8f03d3d9e7cf7cc5d2d67f0d8fe349e85e",
         "warmup_time": -1
     },
     "benchmarks.AveragedSpectrumSuite.time_powerspectrum_from_events": {
-        "code": "class AveragedSpectrumSuite:\n    def time_powerspectrum_from_events(self, case):\n        self.AveragedPowerspectrum(self.events, dt=self.dt, segment_size=self.segment_size)\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED)\n        times1 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED + 1)\n        times = np.sort(np.concatenate([times0, times1]))\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
+        "code": "class AveragedSpectrumSuite:\n    def time_powerspectrum_from_events(self, case):\n        _compat.averaged_spectrum_from_events(\n            self.AveragedPowerspectrum, self.events, dt=self.dt, segment_size=self.segment_size\n        )\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED)\n        times1 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED + 1)\n        times = _data.merged_events(cfg[\"n_events\"], cfg[\"tmax\"])\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
         "min_run_count": 2,
         "name": "benchmarks.AveragedSpectrumSuite.time_powerspectrum_from_events",
         "number": 0,
@@ -65,11 +65,11 @@
         "timeout": 900,
         "type": "time",
         "unit": "seconds",
-        "version": "86c948e658b3d714ab2b93d104517dd85619931634056523425f65dd958953dc",
+        "version": "28710a7985cc280ce7498099d95dd19b59d40d274f8f12e62fd4373df8a2845b",
         "warmup_time": -1
     },
     "benchmarks.AveragedSpectrumSuite.time_powerspectrum_from_lc": {
-        "code": "class AveragedSpectrumSuite:\n    def time_powerspectrum_from_lc(self, case):\n        self.AveragedPowerspectrum(self.lc, segment_size=self.segment_size)\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED)\n        times1 = uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=SEED + 1)\n        times = np.sort(np.concatenate([times0, times1]))\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
+        "code": "class AveragedSpectrumSuite:\n    def time_powerspectrum_from_lc(self, case):\n        self.AveragedPowerspectrum(self.lc, segment_size=self.segment_size)\n\n    def setup(self, case):\n        from stingray.crossspectrum import AveragedCrossspectrum\n        from stingray.events import EventList\n        from stingray.powerspectrum import AveragedPowerspectrum\n    \n        self.AveragedCrossspectrum = AveragedCrossspectrum\n        self.AveragedPowerspectrum = AveragedPowerspectrum\n    \n        cfg = SPECTRUM_CASES[case]\n        self.dt = cfg[\"dt\"]\n        self.segment_size = cfg[\"segment_size\"]\n        self.gti = np.array([[0, cfg[\"tmax\"]]])\n    \n        times0 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED)\n        times1 = _data.uniform_events(cfg[\"n_events\"], cfg[\"tmax\"], seed=_data.SEED + 1)\n        times = _data.merged_events(cfg[\"n_events\"], cfg[\"tmax\"])\n    \n        self.events0 = EventList(times0, gti=self.gti)\n        self.events1 = EventList(times1, gti=self.gti)\n        self.events = EventList(times, gti=self.gti)\n        self.lc0 = self.events0.to_lc(dt=self.dt)\n        self.lc1 = self.events1.to_lc(dt=self.dt)\n        self.lc = self.events.to_lc(dt=self.dt)",
         "min_run_count": 2,
         "name": "benchmarks.AveragedSpectrumSuite.time_powerspectrum_from_lc",
         "number": 0,
@@ -88,11 +88,11 @@
         "timeout": 900,
         "type": "time",
         "unit": "seconds",
-        "version": "014d8e498096cc1e896de37f60d13eb0c08ec883b82a3839e4a55886a2cd55f7",
+        "version": "7780fdcaf366eb8f922256b96045a84266874bd5c7afdf3162ebb44cbe3787f6",
         "warmup_time": -1
     },
     "benchmarks.EventListSuite.time_create_no_checks": {
-        "code": "class EventListSuite:\n    def time_create_no_checks(self, n):\n        _compat.make_eventlist(self.times, gti=self.gti, skip_checks=True)\n\n    def setup(self, n):\n        import stingray.events  # noqa: F401  (keep import time out of the timing)\n    \n        self.gti = np.array([[0, 1000]])\n        self.times = uniform_events(n, 1000)",
+        "code": "class EventListSuite:\n    def time_create_no_checks(self, n):\n        _compat.make_eventlist(self.times, gti=self.gti, skip_checks=True)\n\n    def setup(self, n):\n        import stingray.events  # noqa: F401  (keep import time out of the timing)\n    \n        self.gti = np.array([[0, 1000]])\n        self.times = _data.uniform_events(n, 1000)",
         "min_run_count": 2,
         "name": "benchmarks.EventListSuite.time_create_no_checks",
         "number": 0,
@@ -110,11 +110,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "28c2d1274a3cf452d1743098987dd1cce21aa3d5a3ba87f6d5281c89e42c2bd9",
+        "version": "d8983f39e22b58bfbb355a5907ee329cc33c841c3f81a73158429eb9b26eae46",
         "warmup_time": -1
     },
     "benchmarks.EventListSuite.time_create_with_checks": {
-        "code": "class EventListSuite:\n    def time_create_with_checks(self, n):\n        _compat.make_eventlist(self.times, gti=self.gti, skip_checks=False)\n\n    def setup(self, n):\n        import stingray.events  # noqa: F401  (keep import time out of the timing)\n    \n        self.gti = np.array([[0, 1000]])\n        self.times = uniform_events(n, 1000)",
+        "code": "class EventListSuite:\n    def time_create_with_checks(self, n):\n        _compat.make_eventlist(self.times, gti=self.gti, skip_checks=False)\n\n    def setup(self, n):\n        import stingray.events  # noqa: F401  (keep import time out of the timing)\n    \n        self.gti = np.array([[0, 1000]])\n        self.times = _data.uniform_events(n, 1000)",
         "min_run_count": 2,
         "name": "benchmarks.EventListSuite.time_create_with_checks",
         "number": 0,
@@ -132,11 +132,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "877d15943f573ffc32fb13564817cf7d874bc3bf6c27359ad850fb258aa48700",
+        "version": "3af07bd1239d41651f4a623444c227726ca06279f073b09b10575209a5ccba29",
         "warmup_time": -1
     },
     "benchmarks.LightcurveFromEventsSuite.time_make_lightcurve": {
-        "code": "class LightcurveFromEventsSuite:\n    def time_make_lightcurve(self, n):\n        self.Lightcurve.make_lightcurve(self.times, dt=1, gti=self.gti)\n\n    def setup(self, n):\n        from stingray.lightcurve import Lightcurve\n    \n        self.Lightcurve = Lightcurve\n        self.gti = np.array([[0, 1000]])\n        self.times = uniform_events(n, 1000)",
+        "code": "class LightcurveFromEventsSuite:\n    def time_make_lightcurve(self, n):\n        self.Lightcurve.make_lightcurve(self.times, dt=1, gti=self.gti)\n\n    def setup(self, n):\n        from stingray.lightcurve import Lightcurve\n    \n        self.Lightcurve = Lightcurve\n        self.gti = np.array([[0, 1000]])\n        self.times = _data.uniform_events(n, 1000)",
         "min_run_count": 2,
         "name": "benchmarks.LightcurveFromEventsSuite.time_make_lightcurve",
         "number": 0,
@@ -154,11 +154,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "5552b8ec7f22cdaf36b86f7083885100fcca0c4bdc5225984192868eef16de98",
+        "version": "5b4584d8180afcc4ab0e37146ff22637fbaf097849194b6078d537773cdff36e",
         "warmup_time": -1
     },
     "benchmarks.LightcurveFromEventsSuite.time_make_lightcurve_no_gti": {
-        "code": "class LightcurveFromEventsSuite:\n    def time_make_lightcurve_no_gti(self, n):\n        self.Lightcurve.make_lightcurve(self.times, dt=1)\n\n    def setup(self, n):\n        from stingray.lightcurve import Lightcurve\n    \n        self.Lightcurve = Lightcurve\n        self.gti = np.array([[0, 1000]])\n        self.times = uniform_events(n, 1000)",
+        "code": "class LightcurveFromEventsSuite:\n    def time_make_lightcurve_no_gti(self, n):\n        self.Lightcurve.make_lightcurve(self.times, dt=1)\n\n    def setup(self, n):\n        from stingray.lightcurve import Lightcurve\n    \n        self.Lightcurve = Lightcurve\n        self.gti = np.array([[0, 1000]])\n        self.times = _data.uniform_events(n, 1000)",
         "min_run_count": 2,
         "name": "benchmarks.LightcurveFromEventsSuite.time_make_lightcurve_no_gti",
         "number": 0,
@@ -176,11 +176,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "0cfe067c0e86f0502a4f339a3d6db7d37ac886be57a4d1b2cbbb430ce9b6e979",
+        "version": "65bfbbadfc2d5a83525923447ccac71910fc951b6cfd96732f4b0aab2df6e64e",
         "warmup_time": -1
     },
     "benchmarks.LightcurveSuite.time_create_no_checks": {
-        "code": "class LightcurveSuite:\n    def time_create_no_checks(self, n):\n        _compat.make_lightcurve(\n            self.times, self.counts, dt=self.dt, gti=self.gti, skip_checks=True\n        )\n\n    def setup(self, n):\n        import stingray.lightcurve  # noqa: F401  (keep import time out of the timing)\n    \n        self.dt = 1.0e-4\n        self.times = (np.arange(n) + 0.5) * self.dt\n        self.gti = np.array([[0, n * self.dt]])\n        self.counts = np.random.RandomState(SEED).poisson(100, size=n)",
+        "code": "class LightcurveSuite:\n    def time_create_no_checks(self, n):\n        _compat.make_lightcurve(\n            self.times, self.counts, dt=self.dt, gti=self.gti, skip_checks=True\n        )\n\n    def setup(self, n):\n        import stingray.lightcurve  # noqa: F401  (keep import time out of the timing)\n    \n        self.dt = 1.0e-4\n        self.times = (np.arange(n) + 0.5) * self.dt\n        self.gti = np.array([[0, n * self.dt]])\n        self.counts = _data.poisson_counts(n)",
         "min_run_count": 2,
         "name": "benchmarks.LightcurveSuite.time_create_no_checks",
         "number": 0,
@@ -198,11 +198,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "244e3157ed604d994eb456e562008e61e2bf244c3830b94b600025ff61a3cbb1",
+        "version": "46ecdbaf952f1b93ca69ac058fac4a49bf5bc13d2404a8a9532cdcb374bb2e95",
         "warmup_time": -1
     },
     "benchmarks.LightcurveSuite.time_create_with_checks": {
-        "code": "class LightcurveSuite:\n    def time_create_with_checks(self, n):\n        _compat.make_lightcurve(\n            self.times, self.counts, dt=self.dt, gti=self.gti, skip_checks=False\n        )\n\n    def setup(self, n):\n        import stingray.lightcurve  # noqa: F401  (keep import time out of the timing)\n    \n        self.dt = 1.0e-4\n        self.times = (np.arange(n) + 0.5) * self.dt\n        self.gti = np.array([[0, n * self.dt]])\n        self.counts = np.random.RandomState(SEED).poisson(100, size=n)",
+        "code": "class LightcurveSuite:\n    def time_create_with_checks(self, n):\n        _compat.make_lightcurve(\n            self.times, self.counts, dt=self.dt, gti=self.gti, skip_checks=False\n        )\n\n    def setup(self, n):\n        import stingray.lightcurve  # noqa: F401  (keep import time out of the timing)\n    \n        self.dt = 1.0e-4\n        self.times = (np.arange(n) + 0.5) * self.dt\n        self.gti = np.array([[0, n * self.dt]])\n        self.counts = _data.poisson_counts(n)",
         "min_run_count": 2,
         "name": "benchmarks.LightcurveSuite.time_create_with_checks",
         "number": 0,
@@ -220,7 +220,7 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "c33399e61d54a1cb7b04830d6c750667b0a35cbfffe81cba78caa79ad45ccabb",
+        "version": "c5424bd2ddc8abe6580b1152c24d4ada80b89834c7e5486c743ee57a4f933ffa",
         "warmup_time": -1
     },
     "version": 2

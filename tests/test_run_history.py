@@ -53,3 +53,4 @@ def test_publish_commands(flags, expected):
     """gh-pages already publishes, --rewrite implies --gh-pages, and nothing is ever pushed."""
     args = run_history.parse_args(flags)
     assert run_history.publish_commands(args) == expected
+

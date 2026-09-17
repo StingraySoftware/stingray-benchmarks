@@ -2,11 +2,13 @@
 
 Performance benchmarks for [Stingray](https://github.com/StingraySoftware/stingray),
 run with [asv](https://asv.readthedocs.io) (airspeed velocity) across the
-project history, from v0.3 (2021) to the current `main`.
+project history, from v0.1 (2019) to the current `main`.
 
-Stingray's history spans Python 3.8 to 3.12+ and numpy 1.20 to 2.x, so no
+Stingray's history spans Python 3.7 to 3.12+ and numpy 1.16 to 2.x, so no
 single environment can install every commit. Commits are therefore split in
-three **eras**, each benchmarked in its own pinned conda-forge environment.
+four **eras**, each benchmarked in its own pinned conda-forge environment.
+All eras benchmark the same input data, created once in `data/` (about
+430 MB, not in git) and verified by checksum on every load.
 See [docs/technical_details.md](docs/technical_details.md) for details.
 
 ## Setup (once per machine)
@@ -29,7 +31,7 @@ micromamba.
 See which commits would run, without running anything:
 
 ```bash
-micromamba run -n asv python run_history.py --releases --history --steps 100 --dry-run
+micromamba run -n asv python run_history.py --releases --history --steps 30 --dry-run
 ```
 
 Benchmark all releases (a few hours):
@@ -38,10 +40,11 @@ Benchmark all releases (a few hours):
 micromamba run -n asv python run_history.py --releases --publish
 ```
 
-Fill in the history, at most 100 commits per era:
+Fill in the history, at most 30 commits per era (raise `--steps` later to
+add more; existing results are kept):
 
 ```bash
-micromamba run -n asv python run_history.py --history --steps 100 --publish
+micromamba run -n asv python run_history.py --history --steps 30 --publish
 ```
 
 Only commits on `main` newer than anything benchmarked (for scheduled runs):

@@ -30,7 +30,11 @@
     // (current Python, no pins); includes are added after excludes.
     "exclude": [{"python": ".*"}],
     "include": [
-        // Era A: v0.3 -> v1.0
+        // Era 0: v0.1 -> v0.2. v0.1 builds with astropy-helpers, which needs
+        // setuptools < 58 (use_2to3); PIP_NO_BUILD_ISOLATION=false makes pip
+        // build with this environment's setuptools instead of the newest one.
+        {"python": "3.7", "req": {"numpy": "1.16", "scipy": "1.3", "astropy": "3.2", "matplotlib-base": "3.1", "numba": "0.45", "six": "", "setuptools": "57", "setuptools_scm": "", "wheel": ""}, "env": {"PIP_NO_BUILD_ISOLATION": "false"}},
+        // Era A: v0.2 -> v1.0
         {"python": "3.8", "req": {"numpy": "1.20", "scipy": "1.6", "astropy": "4.2", "matplotlib-base": "3.3", "numba": "0.53", "six": "", "setuptools": "", "setuptools_scm": "", "wheel": ""}},
         // Era B: v1.0 -> v2.0.0
         {"python": "3.10", "req": {"numpy": "1.26", "scipy": "1.11", "astropy": "5.3", "matplotlib-base": "3.8", "numba": "0.58", "setuptools": "", "setuptools_scm": "", "wheel": ""}},

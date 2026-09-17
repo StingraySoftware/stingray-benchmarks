@@ -38,3 +38,16 @@ def make_lightcurve(times, counts, dt, gti=None, skip_checks=False):
 
     kwargs = supported_kwargs(Lightcurve.__init__, skip_checks=skip_checks)
     return Lightcurve(times, counts, dt=dt, gti=gti, **kwargs)
+
+
+def averaged_spectrum_from_events(cls, *events, dt, segment_size, **kwargs):
+    """Build an averaged power or cross spectrum from event lists.
+
+    Stingray v0.1 spectra accept only light curves (no ``dt`` argument); there
+    we emulate the user's route of binning the events first, so the binning
+    time is included in the timing, as it is inside newer versions.
+    """
+    if accepts(cls.__init__, "dt"):
+        return cls(*events, dt=dt, segment_size=segment_size, **kwargs)
+    light_curves = [ev.to_lc(dt) for ev in events]
+    return cls(*light_curves, segment_size=segment_size, **kwargs)
