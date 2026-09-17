@@ -95,7 +95,7 @@ def asv_run_list(commits, env, extra, log):
         os.unlink(f.name)
 
 
-def main(argv=None):
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--eras", default="A,B,C", help="Comma-separated eras (default: all)")
     parser.add_argument("--releases", action="store_true", help="Benchmark release tags")
@@ -107,8 +107,26 @@ def main(argv=None):
     parser.add_argument("--cpu-affinity", help="e.g. 2,3; passed to asv run")
     parser.add_argument("--publish", action="store_true", help="Run asv publish at the end")
     parser.add_argument("--gh-pages", action="store_true", help="Commit html to gh-pages (no push)")
+    parser.add_argument(
+        "--rewrite",
+        action="store_true",
+        help="Implies --gh-pages; replace the gh-pages branch with a single commit",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Only print the commits per era")
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
+
+
+def publish_commands(args):
+    """asv commands that build the website; asv gh-pages runs publish itself."""
+    if args.gh_pages or args.rewrite:
+        return [["gh-pages", "--no-push"] + (["--rewrite"] if args.rewrite else [])]
+    if args.publish:
+        return [["publish"]]
+    return []
+
+
+def main(argv=None):
+    args = parse_args(argv)
 
     os.environ.setdefault("CONDA_EXE", str(HERE / "tools" / "conda-shim"))
     os.environ.setdefault("MAMBA_ROOT_PREFIX", str(Path.home() / "micromamba"))
@@ -150,10 +168,8 @@ def main(argv=None):
 
         if args.dry_run:
             return 0
-        if args.publish or args.gh_pages:
-            status |= run_asv(["publish"], log)
-        if args.gh_pages:
-            status |= run_asv(["gh-pages", "--no-push"], log)
+        for cmd in publish_commands(args):
+            status |= run_asv(cmd, log)
     return status
 
 

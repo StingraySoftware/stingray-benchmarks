@@ -99,3 +99,17 @@ on v0.3 (era A) and main (era C).
   absolute times are not. The latest release is the highest `vX.Y.Z` tag.
 - `tools/conda-shim` finds micromamba via `$MICROMAMBA`, `$MAMBA_EXE` (set
   by `mamba-org/setup-micromamba`), `PATH`, then `~/.local/bin/micromamba`.
+
+## Publishing
+
+- `asv gh-pages` (asv 0.6.5) runs `asv publish`, creates a throwaway git
+  repository inside `html/`, commits the site there and fetches it into the
+  local `gh-pages` branch. The working copy and `main` are never touched.
+- Without `--rewrite`, the new commit stacks on the *local* `gh-pages`
+  branch. If there is none, asv starts an unrelated history that GitHub
+  rejects on a normal push; create it first from `origin/gh-pages`.
+- With `--rewrite`, `gh-pages` becomes a single commit and needs a force-push.
+- `run_history.py` never passes anything that pushes: `--gh-pages` and
+  `--rewrite` both call `asv gh-pages --no-push`.
+- On 2026-09-17 the 2024 site (Python 3.11 runs whose results are not in
+  this repository) was replaced with `--rewrite` and a force-push.

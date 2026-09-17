@@ -38,3 +38,18 @@ def test_history_commits_include_start_in_order(fake_repo):
     """Era history runs oldest to newest and includes its starting release."""
     repo, h = fake_repo
     assert run_history.history_commits(repo, "v0.3", "v1.0") == [h["v0.3"], h["x"], h["v1.0"]]
+
+
+@pytest.mark.parametrize(
+    "flags,expected",
+    [
+        ([], []),
+        (["--publish"], [["publish"]]),
+        (["--gh-pages"], [["gh-pages", "--no-push"]]),
+        (["--publish", "--rewrite"], [["gh-pages", "--no-push", "--rewrite"]]),
+    ],
+)
+def test_publish_commands(flags, expected):
+    """gh-pages already publishes, --rewrite implies --gh-pages, and nothing is ever pushed."""
+    args = run_history.parse_args(flags)
+    assert run_history.publish_commands(args) == expected

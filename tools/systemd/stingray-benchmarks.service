@@ -10,7 +10,9 @@ WorkingDirectory=%h/devel/stingray-benchmarks
 ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish
 # Optional: pin benchmarks to one core that is otherwise idle.
 # ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish --cpu-affinity 3
-# Optional: record and share the results (not enabled by default).
+# Optional: record, share and publish the results (not enabled by default).
+# To publish, replace --publish with --gh-pages in ExecStart above.
 # ExecStartPost=/bin/sh -c 'git add results && git commit -q -m "Benchmark results $(date +%%F)" || true'
 # ExecStartPost=/bin/sh -c 'git push origin main'
+# ExecStartPost=/bin/sh -c 'git fetch origin && git push origin gh-pages'
 TimeoutStartSec=infinity

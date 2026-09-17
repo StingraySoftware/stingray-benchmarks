@@ -58,12 +58,50 @@ micromamba run -n asv asv preview
 
 Results in `results/` are meant to be committed to this repository.
 
+## Publishing
+
+The website is live at <https://stingray.science/stingray-benchmarks/>,
+served by GitHub Pages from the `gh-pages` branch of this repository.
+Publishing takes three steps:
+
+1. `asv publish` turns `results/` into a static website in `html/`
+   (`run_history.py --publish`). Look at it locally with `asv preview`.
+2. `asv gh-pages --no-push` builds the website again and commits it to the
+   local `gh-pages` branch, without touching your working copy or `main`
+   (`run_history.py --gh-pages`).
+3. Pushing `gh-pages` to GitHub updates the website.
+
+To update the website, stack a new commit on the published branch:
+
+```bash
+git fetch origin && git branch -f gh-pages origin/gh-pages
+```
+
+```bash
+micromamba run -n asv python run_history.py --gh-pages
+```
+
+```bash
+git push origin gh-pages
+```
+
+To start the branch over as a single commit (e.g. if it grows too large),
+use `--rewrite` instead of `--gh-pages`; that always needs a force-push:
+
+```bash
+micromamba run -n asv python run_history.py --rewrite
+```
+
+```bash
+git push -f origin gh-pages
+```
+
 ## Weekly runs on a local machine
 
 `tools/systemd/` has a systemd user service and timer that run
 `run_history.py --new --publish` every Sunday at 02:00. Edit
 `WorkingDirectory` if needed, and uncomment the `ExecStartPost` lines to
-commit (and push) the results automatically.
+commit and push the results and publish the website automatically.
 
 ```bash
 mkdir -p ~/.config/systemd/user && cp tools/systemd/stingray-benchmarks.* ~/.config/systemd/user/
