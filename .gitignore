@@ -1,6 +1,7 @@
+# asv: results/ is versioned, the rest is regenerated
 html/
-results/
 stingray/
+logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

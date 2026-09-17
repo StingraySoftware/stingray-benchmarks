@@ -5,6 +5,9 @@ import warnings
 
 import pytest
 
+# A real submodule: the asv mirror in ./stingray would satisfy a bare "stingray".
+pytest.importorskip("stingray.lightcurve")
+
 # Must be set before importing the benchmarks: it shrinks every data size.
 os.environ["STINGRAY_BENCH_SMALL"] = "1"
 

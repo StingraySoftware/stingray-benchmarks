@@ -67,3 +67,22 @@ Environments take 0.8–1.8 GB each; a quick run takes 1–2 min per commit.
 `pytest` (run with the Python of an era environment) calls every benchmark
 once on tiny data (`STINGRAY_BENCH_SMALL=1`), in a few seconds. It passes
 on v0.3 (era A) and main (era C).
+
+## Commit selection (`run_history.py`)
+
+- **Releases**: tags matching `vX.Y[.Z...]` (no rc/beta/dev) that are
+  reachable from the era's end and descend from its start. Tags made only on
+  side branches (v1.1.2.x, v2.2.7) are not reachable from `main` and are
+  skipped.
+- **History**: `git rev-list --first-parent start..end` plus `start`, i.e.
+  roughly one commit per merged pull request. As of 2026-09 this is 39 (A),
+  89 (B) and 74 (C) commits. v2.0.0 was tagged on a release branch, so era B
+  follows that branch in its last stretch.
+- `--steps N` thins the history evenly (asv's own `--steps`); releases are
+  always run separately, so thinning never drops them.
+- `--new` uses asv's `NEW` range in era C: commits newer than the latest one
+  benchmarked on this machine.
+- Every call uses `--skip-existing-successful`, so reruns only fill gaps.
+  A failing commit makes the exit code non-zero but does not stop the run.
+- `NUMBA_NUM_THREADS`, `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS` and
+  `MKL_NUM_THREADS` default to 1 to reduce timing noise.

@@ -9,38 +9,62 @@ single environment can install every commit. Commits are therefore split in
 three **eras**, each benchmarked in its own pinned conda-forge environment.
 See [docs/technical_details.md](docs/technical_details.md) for details.
 
-## Setup
+## Setup (once per machine)
 
 ```bash
-micromamba create -n asv -c conda-forge python=3.12 asv
-```
-
-asv builds its environments with micromamba, through a small wrapper:
-
-```bash
-export CONDA_EXE=$PWD/tools/conda-shim MAMBA_ROOT_PREFIX=$HOME/micromamba
+micromamba create -n asv -c conda-forge python=3.12 asv pytest
 ```
 
 ```bash
 micromamba run -n asv asv machine --yes
 ```
 
-## Running by hand
+## Running
 
-Environment names (one per era) are listed in
-[docs/technical_details.md](docs/technical_details.md).
-Run a single release in its era, e.g. v0.3 in era A:
+`run_history.py` picks the right environment for each commit, skips commits
+that already have results, keeps going if a commit fails, and logs to `logs/`.
+It sets `CONDA_EXE` to `tools/conda-shim`, so asv builds environments with
+micromamba.
 
-```bash
-micromamba run -n asv asv run --show-stderr -E conda-py3.8-astropy4.2-matplotlib-base3.3-numba0.53-numpy1.20-scipy1.6-setuptools-setuptools_scm-six-wheel 'v0.3^!'
-```
-
-Then build and look at the web pages:
+See which commits would run, without running anything:
 
 ```bash
-micromamba run -n asv asv publish
+micromamba run -n asv python run_history.py --releases --history --steps 100 --dry-run
 ```
+
+Benchmark all releases (a few hours):
+
+```bash
+micromamba run -n asv python run_history.py --releases --publish
+```
+
+Fill in the history, at most 100 commits per era:
+
+```bash
+micromamba run -n asv python run_history.py --history --steps 100 --publish
+```
+
+Only commits on `main` newer than anything benchmarked (for scheduled runs):
+
+```bash
+micromamba run -n asv python run_history.py --new --publish
+```
+
+Look at the plots:
 
 ```bash
 micromamba run -n asv asv preview
 ```
+
+Results in `results/` are meant to be committed to this repository.
+
+## Tests
+
+Driver tests run in the `asv` environment:
+
+```bash
+micromamba run -n asv python -m pytest
+```
+
+Benchmark smoke tests need Stingray: run `pytest` with the Python of an asv
+era environment in `env/`.
