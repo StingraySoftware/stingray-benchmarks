@@ -89,6 +89,15 @@ systemctl --user list-timers stingray-benchmarks.timer
 journalctl --user -u stingray-benchmarks.service -n 50
 ```
 
+## GitHub Actions
+
+`.github/workflows/asv-continuous.yml` runs every Monday (and on demand from
+the Actions tab) and compares `main` with the latest Stingray release using
+`asv continuous` in the era C environment. Benchmarks that got more than 20%
+slower make the job fail; the full report is attached to the run as
+`asv-continuous-report`. Shared runners are too noisy for a history graph, so
+this job publishes nothing.
+
 ## Tests
 
 Driver tests run in the `asv` environment:

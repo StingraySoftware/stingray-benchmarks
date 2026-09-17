@@ -86,3 +86,16 @@ on v0.3 (era A) and main (era C).
   A failing commit makes the exit code non-zero but does not stop the run.
 - `NUMBA_NUM_THREADS`, `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS` and
   `MKL_NUM_THREADS` default to 1 to reduce timing noise.
+
+## Automation
+
+- **Local (history):** `tools/systemd/` runs `run_history.py --new --publish`
+  weekly on a fixed machine. One machine gives comparable numbers over years;
+  asv files results by machine name, so a different machine is a new series.
+- **GitHub Actions (relative check):** `asv continuous <latest release> main
+  --factor 1.2` runs both commits back to back on the same runner. GitHub's
+  shared runners differ from run to run by 10–20%, but within one job the
+  two commits see the same hardware, so the ratio is meaningful even when
+  absolute times are not. The latest release is the highest `vX.Y.Z` tag.
+- `tools/conda-shim` finds micromamba via `$MICROMAMBA`, `$MAMBA_EXE` (set
+  by `mamba-org/setup-micromamba`), `PATH`, then `~/.local/bin/micromamba`.
