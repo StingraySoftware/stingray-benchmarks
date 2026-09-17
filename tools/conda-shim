@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Let asv drive micromamba as if it were conda.
+# asv passes --force (instead of --yes) to any conda older than 24.3, and
+# micromamba reports its own 2.x version, so translate the flag.
+args=()
+for a in "$@"; do
+    [[ $a == --force ]] && a=--yes
+    args+=("$a")
+done
+exec "${MICROMAMBA:-$HOME/.local/bin/micromamba}" "${args[@]}"
