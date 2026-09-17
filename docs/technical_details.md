@@ -21,7 +21,7 @@ its own environment, and send each commit range to the matching one:
   a new line in the plots.
 - numba is installed in every era: Stingray is much faster with it, and an
   unrecorded numba change would look like a Stingray change.
-- pyfftw is deliberately *not* installed: Stingray v1.0+ uses it when
+- pyfftw is deliberately *not* installed: Stingray (v0.3 included) uses it when
   present, and leaving it out keeps the scipy FFT in every era.
 - Stingray is installed with `pip install --no-deps`, so pip never alters
   the pinned packages. Era A adds `six`, which v0.3 still imports.
@@ -40,3 +40,30 @@ number; micromamba reports 2.x and receives `--force`, which it rejects.
 Quick run (one sample) of the original benchmarks on v0.3 (era A), v1.0
 (era B), v2.0.0 and main (era C): all 14 benchmarks ran on all four commits.
 Environments take 0.8–1.8 GB each; a quick run takes 1–2 min per commit.
+
+## Benchmark design
+
+- `benchmarks/_compat.py` detects features from call signatures, not from
+  version numbers. Old `EventList` accepts `**kwargs` and only warns about
+  unknown ones such as `skip_checks`; the warning alone tripled the
+  "no checks" timing on v0.3. We now pass a keyword only if it is declared.
+- Before v2.0, `EventList` did no checks, so `time_create_with_checks` and
+  `time_create_no_checks` time the same code in eras A and B.
+- Data are generated in `setup()` with `np.random.RandomState` and a fixed
+  seed. RandomState's stream is frozen by numpy, so every era sees the
+  same events. Building Stingray objects in `setup()` (not `setup_cache`)
+  confines any API breakage to the benchmarks that depend on it.
+- Sizes are asv parameters (1e6 and 1e7 events or bins). The averaged
+  spectra run in two regimes: `few_long_segments` (2×1e7 events, 1000 s,
+  dt=0.1 s, 100 s segments) and `many_short_segments` (2×1e6 events,
+  3000 s, dt=1 ms, 3 s segments).
+- `LightcurveSuite` passes `dt` and `gti` in both benchmarks, so the only
+  difference between them is `skip_checks`.
+- numba compiles functions on first call; asv always makes at least one
+  untimed warm-up call, so compilation is not measured.
+
+## Tests
+
+`pytest` (run with the Python of an era environment) calls every benchmark
+once on tiny data (`STINGRAY_BENCH_SMALL=1`), in a few seconds. It passes
+on v0.3 (era A) and main (era C).
