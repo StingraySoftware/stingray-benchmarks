@@ -1,0 +1,16 @@
+[Unit]
+Description=Benchmark new Stingray commits with asv
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Adjust if this repository lives elsewhere.
+WorkingDirectory=%h/devel/stingray-benchmarks
+ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish
+# Optional: pin benchmarks to one core that is otherwise idle.
+# ExecStart=%h/.local/bin/micromamba run -r %h/micromamba -n asv python run_history.py --new --publish --cpu-affinity 3
+# Optional: record and share the results (not enabled by default).
+# ExecStartPost=/bin/sh -c 'git add results && git commit -q -m "Benchmark results $(date +%%F)" || true'
+# ExecStartPost=/bin/sh -c 'git push origin main'
+TimeoutStartSec=infinity

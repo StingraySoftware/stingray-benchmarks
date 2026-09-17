@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly Stingray benchmarks
+
+[Timer]
+# Sunday night, when the machine is least likely to be in use.
+OnCalendar=Sun *-*-* 02:00
+# Run at next boot if the machine was off at that time.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -58,6 +58,37 @@ micromamba run -n asv asv preview
 
 Results in `results/` are meant to be committed to this repository.
 
+## Weekly runs on a local machine
+
+`tools/systemd/` has a systemd user service and timer that run
+`run_history.py --new --publish` every Sunday at 02:00. Edit
+`WorkingDirectory` if needed, and uncomment the `ExecStartPost` lines to
+commit (and push) the results automatically.
+
+```bash
+mkdir -p ~/.config/systemd/user && cp tools/systemd/stingray-benchmarks.* ~/.config/systemd/user/
+```
+
+```bash
+systemctl --user daemon-reload && systemctl --user enable --now stingray-benchmarks.timer
+```
+
+User timers only run while you are logged in, unless lingering is enabled:
+
+```bash
+loginctl enable-linger $USER
+```
+
+Check the schedule and the last run:
+
+```bash
+systemctl --user list-timers stingray-benchmarks.timer
+```
+
+```bash
+journalctl --user -u stingray-benchmarks.service -n 50
+```
+
 ## Tests
 
 Driver tests run in the `asv` environment:
